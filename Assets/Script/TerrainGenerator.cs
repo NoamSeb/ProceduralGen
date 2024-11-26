@@ -12,16 +12,20 @@ public class TerrainGenerator : MonoBehaviour
 
     public HeightColorVar[] heightColorData; // Now consistent with struct accessibility
 
-    [SerializeField] int pixWidth = 256;
-    [SerializeField] int pixHeight = 256;
-
-    [SerializeField] float scale = 20.0f;
-
-    Renderer rend;
-    Color[] pix;
-    Texture2D noiseTex;
-
-    float[,] heightMap;
+    [Header("Parameters of Terrain Generator")]
+    [SerializeField] private int pixWidth = 256;
+    [SerializeField] private int pixHeight = 256;
+    [SerializeField] private int heightMultiplier = 0;
+    [SerializeField] private float scale = 20.0f;
+    
+    private Renderer rend;
+    private Color[] pix;
+    private Texture2D noiseTex;
+    private float[,] heightMap;
+    
+    private Vector3[] verts;
+    private int[] tris;
+    private Vector2[] uvs;
 
     void Start()
     {
@@ -30,6 +34,9 @@ public class TerrainGenerator : MonoBehaviour
         noiseTex.filterMode = FilterMode.Point;
         pix = new Color[pixWidth * pixHeight];
         rend.material.mainTexture = noiseTex;
+        
+        pixWidth = Random.Range(100, pixWidth);
+        pixHeight = Random.Range(100, pixHeight);
 
         SetHeightMap();
         CreateTexture();
@@ -40,9 +47,9 @@ public class TerrainGenerator : MonoBehaviour
     {
         heightMap = new float[pixWidth + 1, pixHeight + 1];
 
-        for (int y = 0; y <= pixHeight; y++)
+        for (int y = 0; y < pixHeight; y++)
         {
-            for (int x = 0; x <= pixWidth; x++)
+            for (int x = 0; x < pixWidth; x++)
             {
                 float xCoord = (float)x / scale;
                 float yCoord = (float)y / scale;
@@ -60,9 +67,9 @@ public class TerrainGenerator : MonoBehaviour
             {
                 for (int i = 0; i < heightColorData.Length; i++)
                 {
-                    if (heightMap[x, y] <= heightColorData[i].heightValue)
+                    if (heightMap[x, y] <= heightColorData[i].heightValue*100)
                     {
-                        pix[y * pixWidth + x] = heightColorData[i].heightColor;
+                        pix[x * pixWidth + y] = heightColorData[i].heightColor;
                         break;
                     }
                 }
@@ -75,38 +82,38 @@ public class TerrainGenerator : MonoBehaviour
 
     void CreateMesh()
     {
-        Mesh mesh = new Mesh();
-        Vector3[] vertices = new Vector3[(pixWidth + 1) * (pixHeight + 1)];
-        Vector2[] uv = new Vector2[vertices.Length];
-        int[] triangles = new int[pixWidth * pixHeight * 6];
-        int t = 0;
+        verts = new Vector3[(pixWidth + 1) * (pixHeight + 1)];
+        uvs = new Vector2[verts.Length];
+        tris = new int[pixWidth * pixHeight * 6];
 
-        for (int y = 0; y <= pixHeight; y++)
+        for (int y = 0; y < pixHeight; y++)
         {
-            for (int x = 0; x <= pixWidth; x++)
+            for (int x = 0; x < pixWidth; x++)
             {
-                vertices[y * (pixWidth + 1) + x] = new Vector3(x, heightMap[x, y], y);
-                uv[y * (pixWidth + 1) + x] = new Vector2((float)x / pixWidth, (float)y / pixHeight);
-
-                if (x != pixWidth && y != pixHeight)
-                {
-                    triangles[t] = y * (pixWidth + 1) + x;
-                    triangles[t + 1] = (y + 1) * (pixWidth + 1) + x;
-                    triangles[t + 2] = y * (pixWidth + 1) + x + 1;
-                    triangles[t + 3] = y * (pixWidth + 1) + x + 1;
-                    triangles[t + 4] = (y + 1) * (pixWidth + 1) + x;
-                    triangles[t + 5] = (y + 1) * (pixWidth + 1) + x + 1;
-                    t += 6;
-                }
+                verts[y * pixWidth + x + y] = new Vector3(x, heightMap[x, y] * heightMultiplier, y);
+                uvs[y * pixWidth + x + y] = new Vector2((float)y / (float)pixHeight, (float)x / (float)pixWidth);
             }
         }
 
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.triangles = triangles;
+        for (int y = 0; y < pixHeight; y++)
+        {
+            for (int x = 0; x < pixWidth; x++)
+            {
+                tris[(y * pixWidth + x) * 6] = y * pixWidth + x + y; 
+                tris[(y * pixWidth + x) * 6 + 1] = y * pixWidth + x + y + pixWidth + 1; 
+                tris[(y * pixWidth + x) * 6 + 2] = y * pixWidth + x + y + 1; 
+                tris[(y * pixWidth + x) * 6 + 3] = y * pixWidth + x + y + 1; 
+                tris[(y * pixWidth + x) * 6 + 4] = y * pixWidth + x + y + pixWidth + 1; 
+                tris[(y * pixWidth + x) * 6 + 5] = y * pixWidth + x + y + pixWidth + 2; 
+            }
+        }
 
+        Mesh mesh = GetComponent<MeshFilter>().mesh;
+        mesh.Clear();
+        mesh.vertices = verts;
+        mesh.triangles = tris;
+        mesh.uv = uvs;
         mesh.RecalculateNormals();
-
-        GetComponent<MeshFilter>().mesh = mesh;
     }
 }
+ 

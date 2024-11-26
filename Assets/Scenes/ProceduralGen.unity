@@ -422,6 +422,7 @@ GameObject:
   - component: {fileID: 573899556}
   - component: {fileID: 573899555}
   - component: {fileID: 573899554}
+  - component: {fileID: 573899558}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -462,7 +463,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -519,6 +520,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &573899558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 573899553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b744283d712c2d748b82544454486931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heightColorData:
+  - heightColor: {r: 0.11917468, g: 0.1092417, b: 0.86415094, a: 1}
+    heightValue: 0.4
+  - heightColor: {r: 1.5924529, g: 1.5692958, b: 0.33351374, a: 0.94509804}
+    heightValue: 0.45
+  - heightColor: {r: 0.19344169, g: 0.8415094, b: 0.061922297, a: 1}
+    heightValue: 0.7
+  - heightColor: {r: 0.6981132, g: 0.3456794, b: 0.093520835, a: 1}
+    heightValue: 0.8
+  - heightColor: {r: 0.11650943, g: 0.048061516, b: 0.0050560567, a: 1}
+    heightValue: 0.85
+  pixWidth: 256
+  pixHeight: 256
+  heightMultiplier: 10
+  scale: 25
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
